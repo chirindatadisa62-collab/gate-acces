@@ -25,6 +25,39 @@ class Student(db.Model):
     name = db.Column(db.String(100), nullable=False)
     fee_cleared = db.Column(db.Boolean, default=False)
 
+@app.route('/admin/init', methods=['GET'])
+def init_db():
+    """Initialize database with sample students - only call once"""
+    try:
+        with app.app_context():
+            db.create_all()
+            
+            # Check if students already exist
+            if Student.query.first():
+                return "Database already initialized with students"
+            
+            # Add sample students
+            students = [
+                Student(student_number='STU001', name='Alice Johnson', fee_cleared=True),
+                Student(student_number='STU002', name='Bob Smith', fee_cleared=False),
+                Student(student_number='STU003', name='Charlie Brown', fee_cleared=True),
+                Student(student_number='STU004', name='Diana Prince', fee_cleared=False),
+                Student(student_number='STU005', name='Eve Wilson', fee_cleared=True),
+                Student(student_number='STU006', name='Frank Miller', fee_cleared=False),
+                Student(student_number='STU007', name='Grace Lee', fee_cleared=True),
+                Student(student_number='STU008', name='Henry Taylor', fee_cleared=True),
+                Student(student_number='STU009', name='Iris Anderson', fee_cleared=False),
+                Student(student_number='STU010', name='Jack Martin', fee_cleared=True),
+            ]
+            
+            for student in students:
+                db.session.add(student)
+            
+            db.session.commit()
+            return f"Successfully initialized database with {len(students)} students"
+    except Exception as e:
+        return f"Error initializing database: {str(e)}"
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
